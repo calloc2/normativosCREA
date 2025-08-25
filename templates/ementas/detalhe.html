@@ -1,19 +1,58 @@
-<!-- templates/ementas/detalhe.html -->
 {% extends "base.html" %}
 {% block title %}{{ ementa.titulo }}{% endblock %}
 {% block content %}
   <h1 class="h3">{{ ementa.titulo }}</h1>
-  {% if ementa.numero %}<div><strong>Número:</strong> {{ ementa.numero }}</div>{% endif %}
-  {% if ementa.data_publicacao %}<div><strong>Publicação:</strong> {{ ementa.data_publicacao|date:"d/m/Y" }}</div>{% endif %}
-  {% if ementa.resumo %}<p class="mt-3">{{ ementa.resumo }}</p>{% endif %}
+  
+  <div class="row mb-3">
+    <div class="col-md-6">
+      {% if ementa.numero %}<div><strong>Número:</strong> {{ ementa.numero }}</div>{% endif %}
+      {% if ementa.data_publicacao %}<div><strong>Publicação:</strong> {{ ementa.data_publicacao|date:"d/m/Y" }}</div>{% endif %}
+    </div>
+    <div class="col-md-6">
+      <div><strong>Tipo:</strong> {{ ementa.get_tipo_ato_normativo_display }}</div>
+      <div><strong>Situação:</strong> 
+        <span class="badge {% if ementa.situacao == 'em_vigor' %}bg-success{% elif ementa.situacao == 'revogada' %}bg-warning{% else %}bg-danger{% endif %}">
+          {{ ementa.get_situacao_display }}
+        </span>
+      </div>
+    </div>
+  </div>
+  
+  {% if ementa.ementa %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Ementa</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-0">{{ ementa.ementa }}</p>
+      </div>
+    </div>
+  {% endif %}
+  
+  {% if ementa.resumo and ementa.resumo != ementa.ementa %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Resumo Adicional</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-0">{{ ementa.resumo }}</p>
+      </div>
+    </div>
+  {% endif %}
 
   {% if ementa.arquivo %}
-    <a class="btn btn-outline-primary mt-2" href="{{ ementa.arquivo.url }}"  rel="noopener">Baixar PDF</a>
+    <div class="mt-3">
+      <a class="btn btn-outline-primary" href="{{ ementa.arquivo.url }}" rel="noopener">
+        <i class="bi bi-file-pdf"></i> Baixar PDF
+      </a>
+    </div>
   {% else %}
-    <div class="text-muted mt-2">Nenhum PDF anexado.</div>
+    <div class="text-muted mt-3">Nenhum PDF anexado.</div>
   {% endif %}
 
   <div class="mt-4">
-    <a href="{% url 'ementas:lista' %}">← Voltar</a>
+    <a href="{% url 'ementas:lista' %}" class="btn btn-outline-secondary">
+      ← Voltar à Lista
+    </a>
   </div>
 {% endblock %}

@@ -5,5 +5,5 @@ app_name = "ementas"
 
 urlpatterns = [
     path("", views.ementa_list,name="lista"),
-    path("ementa/<int:pk>/", views.ementa_detail,name="ementa_detail"),
+    path("ementa/<int:pk>/", views.ementa_detail,name="detalhe"),
 ]
