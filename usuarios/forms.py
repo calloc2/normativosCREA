@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV3
 from .models import PerfilUsuario
 
 class UsuarioRegistrationForm(UserCreationForm):
@@ -15,7 +17,11 @@ class UsuarioRegistrationForm(UserCreationForm):
             )
         ],
         help_text='Formato: 000.000.000-00',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': '000.000.000-00',
+            'autocomplete': 'off'
+        })
     )
     
     telefone = forms.CharField(
@@ -28,26 +34,65 @@ class UsuarioRegistrationForm(UserCreationForm):
             )
         ],
         help_text='Formato: (00) 00000-0000',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': '(00) 00000-0000',
+            'autocomplete': 'off'
+        })
     )
     
     first_name = forms.CharField(
         max_length=30,
         required=True,
         label='Nome',
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Seu nome completo'
+        })
     )
     
     last_name = forms.CharField(
         max_length=30,
         required=True,
         label='Sobrenome',
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Seu sobrenome'
+        })
     )
     
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'seu.email@exemplo.com'
+        })
+    )
+    
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nome de usuário único'
+        })
+    )
+    
+    password1 = forms.CharField(
+        label='Senha',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite sua senha',
+            'id': 'password1'
+        })
+    )
+    
+    password2 = forms.CharField(
+        label='Confirmar Senha',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirme sua senha',
+            'id': 'password2'
+        })
     )
     
     registro_profissional = forms.CharField(
@@ -55,27 +100,41 @@ class UsuarioRegistrationForm(UserCreationForm):
         required=False,
         label='Registro Profissional',
         help_text='Número do registro no CREA',
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ex: 12345-DF'
+        })
     )
     
     empresa = forms.CharField(
         max_length=200,
         required=False,
         label='Empresa/Instituição',
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nome da empresa ou instituição'
+        })
     )
     
     cargo = forms.CharField(
         max_length=100,
         required=False,
         label='Cargo/Função',
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Seu cargo ou função atual'
+        })
     )
     
     aceito_termos = forms.BooleanField(
         required=True,
         label='Li e aceito os termos de uso e política de privacidade',
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    captcha = ReCaptchaField(
+        widget=ReCaptchaV3,
+        label=''
     )
 
     class Meta:
@@ -84,11 +143,6 @@ class UsuarioRegistrationForm(UserCreationForm):
             'username', 'first_name', 'last_name', 'email',
             'password1', 'password2'
         ]
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
-            'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -119,7 +173,11 @@ class PerfilUsuarioUpdateForm(forms.ModelForm):
             )
         ],
         help_text='Formato: (00) 00000-0000',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': '(00) 00000-0000',
+            'autocomplete': 'off'
+        })
     )
 
     class Meta:
@@ -146,3 +204,25 @@ class PerfilUsuarioUpdateForm(forms.ModelForm):
         if PerfilUsuario.objects.exclude(pk=self.instance.pk).filter(cpf=cpf).exists():
             raise forms.ValidationError('Este CPF já está cadastrado.')
         return cpf
+
+class CustomAuthenticationForm(forms.Form):
+    username = forms.CharField(
+        label='Usuário',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nome de usuário ou e-mail',
+            'autocomplete': 'username'
+        })
+    )
+    password = forms.CharField(
+        label='Senha',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite sua senha',
+            'autocomplete': 'current-password'
+        })
+    )
+    captcha = ReCaptchaField(
+        widget=ReCaptchaV3,
+        label=''
+    )

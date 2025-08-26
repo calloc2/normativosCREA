@@ -2,11 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.utils import timezone
 from .models import PerfilUsuario
-from .forms import UsuarioRegistrationForm, PerfilUsuarioUpdateForm
+from .forms import UsuarioRegistrationForm, PerfilUsuarioUpdateForm, CustomAuthenticationForm
 from ementas.models import Ementa
 
 def cadastro(request):
@@ -34,7 +33,7 @@ def cadastro(request):
 
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
@@ -52,7 +51,7 @@ def login_view(request):
         else:
             messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
-        form = AuthenticationForm()
+        form = CustomAuthenticationForm()
     return render(request, 'usuarios/login.html', {'form': form})
 
 def logout_view(request):
