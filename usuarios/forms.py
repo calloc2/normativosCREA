@@ -5,21 +5,19 @@ from django.core.validators import RegexValidator
 from .models import PerfilUsuario
 
 class UsuarioRegistrationForm(UserCreationForm):
-    """Formulário para cadastro de novos usuários"""
-    
-    # Validação de CPF
     cpf = forms.CharField(
         max_length=14,
+        required=True,
         validators=[
             RegexValidator(
                 regex=r'^\d{3}\.\d{3}\.\d{3}-\d{2}$',
                 message='CPF deve estar no formato 000.000.000-00'
             )
         ],
-        help_text='Formato: 000.000.000-00'
+        help_text='Formato: 000.000.000-00',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'})
     )
     
-    # Validação de telefone
     telefone = forms.CharField(
         max_length=15,
         required=False,
@@ -29,10 +27,10 @@ class UsuarioRegistrationForm(UserCreationForm):
                 message='Telefone deve estar no formato (00) 00000-0000'
             )
         ],
-        help_text='Formato: (00) 00000-0000'
+        help_text='Formato: (00) 00000-0000',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'})
     )
     
-    # Campos obrigatórios
     first_name = forms.CharField(
         max_length=30,
         required=True,
@@ -52,19 +50,11 @@ class UsuarioRegistrationForm(UserCreationForm):
         widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
     
-    # Campos profissionais
-    tipo_usuario = forms.ChoiceField(
-        choices=PerfilUsuario.TIPO_USUARIO_CHOICES,
-        required=True,
-        label='Tipo de Usuário',
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
-    
     registro_profissional = forms.CharField(
         max_length=20,
         required=False,
         label='Registro Profissional',
-        help_text='Número do registro no CREA (opcional)',
+        help_text='Número do registro no CREA',
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     
@@ -82,60 +72,36 @@ class UsuarioRegistrationForm(UserCreationForm):
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     
-    # Documentos
-    documento_identidade = forms.FileField(
-        required=False,
-        label='Documento de Identidade',
-        help_text='PDF, JPG ou PNG (opcional)',
-        widget=forms.FileInput(attrs={'class': 'form-control'})
-    )
-    
-    comprovante_residencia = forms.FileField(
-        required=False,
-        label='Comprovante de Residência',
-        help_text='PDF, JPG ou PNG (opcional)',
-        widget=forms.FileInput(attrs={'class': 'form-control'})
-    )
-    
-    diploma_ou_certificado = forms.FileField(
-        required=False,
-        label='Diploma ou Certificado',
-        help_text='PDF, JPG ou PNG (opcional)',
-        widget=forms.FileInput(attrs={'class': 'form-control'})
-    )
-    
-    # Termos de uso
     aceito_termos = forms.BooleanField(
         required=True,
         label='Li e aceito os termos de uso e política de privacidade',
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
-    
+
     class Meta:
         model = User
         fields = [
             'username', 'first_name', 'last_name', 'email',
             'password1', 'password2'
         ]
-    
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Estilização dos campos de senha
-        self.fields['username'].widget.attrs.update({'class': 'form-control'})
-        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
-        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
-        
-        # Help texts personalizados
-        self.fields['username'].help_text = 'Requerido. 150 caracteres ou menos. Apenas letras, dígitos e @/./+/-/_'
+        self.fields['username'].help_text = 'Requerido. 150 caracteres ou menos. Apenas letras, números e @/./+/-/_'
         self.fields['password1'].help_text = 'Sua senha deve conter pelo menos 8 caracteres e não pode ser muito comum.'
         self.fields['password2'].help_text = 'Digite a mesma senha novamente para verificação.'
-    
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('Este e-mail já está em uso.')
         return email
-    
+
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
         if PerfilUsuario.objects.filter(cpf=cpf).exists():
@@ -143,9 +109,6 @@ class UsuarioRegistrationForm(UserCreationForm):
         return cpf
 
 class PerfilUsuarioUpdateForm(forms.ModelForm):
-    """Formulário para edição do perfil do usuário"""
-    
-    # Validação de telefone
     telefone = forms.CharField(
         max_length=15,
         required=False,
@@ -155,31 +118,31 @@ class PerfilUsuarioUpdateForm(forms.ModelForm):
                 message='Telefone deve estar no formato (00) 00000-0000'
             )
         ],
-        help_text='Formato: (00) 00000-0000'
+        help_text='Formato: (00) 00000-0000',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'})
     )
-    
+
     class Meta:
         model = PerfilUsuario
         fields = [
-            'cpf', 'telefone', 'tipo_usuario', 'registro_profissional', 
-            'empresa', 'cargo', 'documento_identidade', 
-            'comprovante_residencia', 'diploma_ou_certificado'
+            'cpf', 'telefone', 'registro_profissional',
+            'empresa', 'cargo'
         ]
-    
+        widgets = {
+            'cpf': forms.TextInput(attrs={'class': 'form-control'}),
+            'registro_profissional': forms.TextInput(attrs={'class': 'form-control'}),
+            'empresa': forms.TextInput(attrs={'class': 'form-control'}),
+            'cargo': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Estilização dos campos
-        for field in self.fields.values():
-            if isinstance(field.widget, forms.TextInput):
-                field.widget.attrs.update({'class': 'form-control'})
-            elif isinstance(field.widget, forms.Select):
-                field.widget.attrs.update({'class': 'form-select'})
-            elif isinstance(field.widget, forms.FileInput):
-                field.widget.attrs.update({'class': 'form-control'})
-    
+        # Adiciona formatação automática para CPF
+        if self.instance and self.instance.cpf:
+            self.fields['cpf'].widget.attrs['placeholder'] = '000.000.000-00'
+
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
-        # Verifica se o CPF já existe para outro usuário
         if PerfilUsuario.objects.exclude(pk=self.instance.pk).filter(cpf=cpf).exists():
             raise forms.ValidationError('Este CPF já está cadastrado.')
         return cpf

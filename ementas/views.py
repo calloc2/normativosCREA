@@ -1,9 +1,11 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.dateparse import parse_date
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Ementa
+from .forms import EmentaForm
 
 def ementa_list(request):
     q = request.GET.get("q", "").strip()
@@ -22,10 +24,6 @@ def ementa_list(request):
     
     # Base queryset - apenas ementas publicadas
     qs = Ementa.objects.filter(publicado=True)
-    
-    # Filtro de sigiloso baseado no usuário
-    if not request.user.is_authenticated or not hasattr(request.user, 'perfil') or not request.user.perfil.can_view_confidential:
-        qs = qs.filter(sigiloso=False)
     
     if q:
         qs = qs.filter(
@@ -73,7 +71,8 @@ def ementa_list(request):
         "tipos_ato": Ementa.TIPO_ATO_CHOICES,
         "situacoes": Ementa.SITUACAO_CHOICES,
         "opcoes_paginacao": [10, 50, 100],
-        "user_can_view_confidential": request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.can_view_confidential,
+        "user_can_edit": request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.can_edit,
+        "user_can_publish": request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.can_publish,
     }
     return render(request, "ementas/lista.html", context)
 
@@ -84,11 +83,68 @@ def ementa_detail(request, pk):
     if not ementa.publicado and not (request.user.is_authenticated and request.user.is_staff):
         return render(request, "404.html", status=404)
     
-    # Verifica se o usuário pode ver ementas sigilosas
-    if ementa.sigiloso and not (request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.can_view_confidential):
-        return render(request, "ementas/detalhe.html", {
-            "ementa": ementa,
-            "acesso_negado": True
-        })
+    context = {
+        "ementa": ementa,
+        "user_can_edit": request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.can_edit,
+        "user_can_publish": request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.can_publish,
+    }
+    return render(request, "ementas/detalhe.html", context)
+
+@login_required
+def ementa_create(request):
+    """View para criar nova ementa"""
+    if not hasattr(request.user, 'perfil') or not request.user.perfil.can_publish:
+        messages.error(request, 'Você não tem permissão para criar ementas.')
+        return redirect('ementas:lista')
     
-    return render(request, "ementas/detalhe.html", {"ementa": ementa})
+    if request.method == 'POST':
+        form = EmentaForm(request.POST, request.FILES)
+        if form.is_valid():
+            ementa = form.save(commit=False)
+            ementa.criado_por = request.user
+            ementa.save()
+            messages.success(request, 'Ementa criada com sucesso!')
+            return redirect('ementas:detalhe', pk=ementa.pk)
+    else:
+        form = EmentaForm()
+    
+    context = {
+        'form': form,
+        'action': 'criar',
+        'title': 'Criar Nova Ementa'
+    }
+    return render(request, 'ementas/form.html', context)
+
+@login_required
+def ementa_edit(request, pk):
+    """View para editar ementa existente"""
+    ementa = get_object_or_404(Ementa, pk=pk)
+    
+    # Verifica permissões
+    if not hasattr(request.user, 'perfil'):
+        messages.error(request, 'Perfil não encontrado.')
+        return redirect('ementas:lista')
+    
+    perfil = request.user.perfil
+    
+    # Apenas criador ou usuários com permissão de edição podem editar
+    if not (perfil.can_edit or ementa.criado_por == request.user):
+        messages.error(request, 'Você não tem permissão para editar esta ementa.')
+        return redirect('ementas:detalhe', pk=ementa.pk)
+    
+    if request.method == 'POST':
+        form = EmentaForm(request.POST, request.FILES, instance=ementa)
+        if form.is_valid():
+            ementa = form.save()
+            messages.success(request, 'Ementa atualizada com sucesso!')
+            return redirect('ementas:detalhe', pk=ementa.pk)
+    else:
+        form = EmentaForm(instance=ementa)
+    
+    context = {
+        'form': form,
+        'ementa': ementa,
+        'action': 'editar',
+        'title': 'Editar Ementa'
+    }
+    return render(request, 'ementas/form.html', context)
