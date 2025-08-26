@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Cadastro - CREA-TO{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Cadastro de Usuário</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <h5 class="mb-3">Informações Básicas</h5>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+              {{ form.username }}
+              {% if form.username.help_text %}
+                <div class="form-text">{{ form.username.help_text }}</div>
+              {% endif %}
+              {% if form.username.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.username.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.email.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.first_name.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.last_name.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.cpf.id_for_label }}" class="form-label">{{ form.cpf.label }}</label>
+              {{ form.cpf }}
+              {% if form.cpf.help_text %}
+                <div class="form-text">{{ form.cpf.help_text }}</div>
+              {% endif %}
+              {% if form.cpf.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.cpf.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.telefone.id_for_label }}" class="form-label">{{ form.telefone.label }}</label>
+              {{ form.telefone }}
+              {% if form.telefone.help_text %}
+                <div class="form-text">{{ form.telefone.help_text }}</div>
+              {% endif %}
+              {% if form.telefone.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.telefone.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <h5 class="mb-3">Informações Profissionais</h5>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="{{ form.tipo_usuario.id_for_label }}" class="form-label">{{ form.tipo_usuario.label }}</label>
+              {{ form.tipo_usuario }}
+              {% if form.tipo_usuario.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.tipo_usuario.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.registro_profissional.id_for_label }}" class="form-label">{{ form.registro_profissional.label }}</label>
+              {{ form.registro_profissional }}
+              {% if form.registro_profissional.help_text %}
+                <div class="form-text">{{ form.registro_profissional.help_text }}</div>
+              {% endif %}
+              {% if form.registro_profissional.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.registro_profissional.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.empresa.id_for_label }}" class="form-label">{{ form.empresa.label }}</label>
+              {{ form.empresa }}
+              {% if form.empresa.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.empresa.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.cargo.id_for_label }}" class="form-label">{{ form.cargo.label }}</label>
+              {{ form.cargo }}
+              {% if form.cargo.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.cargo.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <h5 class="mb-3">Documentos (Opcional)</h5>
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label for="{{ form.documento_identidade.id_for_label }}" class="form-label">{{ form.documento_identidade.label }}</label>
+              {{ form.documento_identidade }}
+              {% if form.documento_identidade.help_text %}
+                <div class="form-text">{{ form.documento_identidade.help_text }}</div>
+              {% endif %}
+              {% if form.documento_identidade.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.documento_identidade.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.comprovante_residencia.id_for_label }}" class="form-label">{{ form.comprovante_residencia.label }}</label>
+              {{ form.comprovante_residencia }}
+              {% if form.comprovante_residencia.help_text %}
+                <div class="form-text">{{ form.comprovante_residencia.help_text }}</div>
+              {% endif %}
+              {% if form.comprovante_residencia.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.comprovante_residencia.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.diploma_ou_certificado.id_for_label }}" class="form-label">{{ form.diploma_ou_certificado.label }}</label>
+              {{ form.diploma_ou_certificado }}
+              {% if form.diploma_ou_certificado.help_text %}
+                <div class="form-text">{{ form.diploma_ou_certificado.help_text }}</div>
+              {% endif %}
+              {% if form.diploma_ou_certificado.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.diploma_ou_certificado.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <h5 class="mb-3">Senha</h5>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="{{ form.password1.id_for_label }}" class="form-label">{{ form.password1.label }}</label>
+              {{ form.password1 }}
+              {% if form.password1.help_text %}
+                <div class="form-text">{{ form.password1.help_text }}</div>
+              {% endif %}
+              {% if form.password1.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.password1.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }}</label>
+              {{ form.password2 }}
+              {% if form.password2.help_text %}
+                <div class="form-text">{{ form.password2.help_text }}</div>
+              {% endif %}
+              {% if form.password2.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.password2.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="aceito_termos" name="aceito_termos" required>
+              <label class="form-check-label" for="aceito_termos">
+                Li e aceito os <a href="#" class="text-decoration-none">termos de uso</a> e <a href="#" class="text-decoration-none">política de privacidade</a>
+              </label>
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{% url 'ementas:lista' %}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <div class="text-center mt-3">
+      <p class="text-muted">
+        Já tem uma conta? <a href="{% url 'usuarios:login' %}" class="text-decoration-none">Faça login</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

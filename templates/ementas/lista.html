@@ -79,17 +79,36 @@
         <li class="list-group-item">
           <div class="d-flex justify-content-between align-items-start">
             <div class="flex-grow-1">
-              <a class="fw-semibold" href="{% url 'ementas:detalhe' e.pk %}">{{ e.titulo }}</a>
+              <a class="fw-semibold" href="{% url 'ementas:detalhe' e.pk %}">
+                {% if e.sigiloso %}
+                  <span class="text-warning">🔒 {{ e.titulo }}</span>
+                {% else %}
+                  {{ e.titulo }}
+                {% endif %}
+              </a>
               <div class="mt-1">
                 {% if e.numero %}<span class="badge bg-secondary me-2">Nº {{ e.numero }}</span>{% endif %}
                 <span class="badge bg-info me-2">{{ e.get_tipo_ato_normativo_display }}</span>
                 <span class="badge {% if e.situacao == 'em_vigor' %}bg-success{% elif e.situacao == 'revogada' %}bg-warning{% else %}bg-danger{% endif %}">
                   {{ e.get_situacao_display }}
                 </span>
+                {% if e.sigiloso %}
+                  <span class="badge bg-warning text-dark">🔒 SIGILOSO</span>
+                {% endif %}
               </div>
               {% if e.data_publicacao %}<div class="text-muted mt-1">Publicação: {{ e.data_publicacao|date:"d/m/Y" }}</div>{% endif %}
-              {% if e.ementa %}<p class="mb-0 mt-2">{{ e.ementa|truncatechars:200 }}</p>{% endif %}
-              {% if e.resumo and e.resumo != e.ementa %}<p class="mb-0 mt-1 text-muted"><small>{{ e.resumo|truncatechars:160 }}</small></p>{% endif %}
+              
+              {% if e.sigiloso %}
+                <div class="alert alert-warning mt-2 mb-0 py-2">
+                  <small class="text-muted">
+                    <i class="bi bi-shield-lock"></i> 
+                    Esta ementa é sigilosa e não possui conteúdo visível neste sistema.
+                  </small>
+                </div>
+              {% else %}
+                {% if e.ementa %}<p class="mb-0 mt-2">{{ e.ementa|truncatechars:200 }}</p>{% endif %}
+                {% if e.resumo and e.resumo != e.ementa %}<p class="mb-0 mt-1 text-muted"><small>{{ e.resumo|truncatechars:160 }}</small></p>{% endif %}
+              {% endif %}
             </div>
           </div>
         </li>

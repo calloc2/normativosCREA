@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Meu Perfil - CREA-TO{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-4">
+    <div class="card shadow mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Informações Pessoais</h5>
+      </div>
+      <div class="card-body">
+        <div class="text-center mb-3">
+          <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+            <span class="h3 text-muted">{{ usuario.first_name|first|upper }}{{ usuario.last_name|first|upper }}</span>
+          </div>
+        </div>
+        
+        <h6 class="card-title">{{ usuario.get_full_name }}</h6>
+        <p class="text-muted mb-2">{{ usuario.email }}</p>
+        <p class="text-muted mb-2">CPF: {{ usuario.cpf }}</p>
+        {% if usuario.telefone %}
+          <p class="text-muted mb-2">Telefone: {{ usuario.telefone }}</p>
+        {% endif %}
+        
+        <div class="mt-3">
+          <span class="badge bg-info me-2">{{ usuario.get_tipo_usuario_display }}</span>
+          <span class="badge bg-secondary">{{ usuario.get_permissao_display }}</span>
+        </div>
+        
+        <div class="mt-3">
+          <a href="{% url 'usuarios:editar_perfil' %}" class="btn btn-outline-primary btn-sm">Editar Perfil</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card shadow">
+      <div class="card-header bg-success text-white">
+        <h6 class="mb-0">Status da Conta</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>E-mail Verificado:</span>
+          {% if usuario.email_verificado %}
+            <span class="badge bg-success">✓ Sim</span>
+          {% else %}
+            <span class="badge bg-warning">✗ Não</span>
+          {% endif %}
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>Conta Aprovada:</span>
+          {% if usuario.conta_aprovada %}
+            <span class="badge bg-success">✓ Sim</span>
+          {% else %}
+            <span class="badge bg-warning">✗ Não</span>
+          {% endif %}
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>Pode Publicar:</span>
+          {% if usuario.pode_publicar %}
+            <span class="badge bg-success">✓ Sim</span>
+          {% else %}
+            <span class="badge bg-secondary">✗ Não</span>
+          {% endif %}
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center">
+          <span>Visualizar Sigiloso:</span>
+          {% if usuario.pode_visualizar_sigiloso %}
+            <span class="badge bg-success">✓ Sim</span>
+          {% else %}
+            <span class="badge bg-secondary">✗ Não</span>
+          {% endif %}
+        </div>
+        
+        {% if usuario.data_aprovacao %}
+          <hr>
+          <small class="text-muted">
+            Aprovado em: {{ usuario.data_aprovacao|date:"d/m/Y H:i" }}
+          </small>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-8">
+    <div class="card shadow mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Informações Profissionais</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Tipo de Usuário:</strong> {{ usuario.get_tipo_usuario_display }}</p>
+            {% if usuario.registro_profissional %}
+              <p><strong>Registro Profissional:</strong> {{ usuario.registro_profissional }}</p>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            {% if usuario.empresa %}
+              <p><strong>Empresa:</strong> {{ usuario.empresa }}</p>
+            {% endif %}
+            {% if usuario.cargo %}
+              <p><strong>Cargo:</strong> {{ usuario.cargo }}</p>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="mt-3">
+          <h6>Documentos:</h6>
+          <div class="row">
+            <div class="col-md-4">
+              {% if usuario.documento_identidade %}
+                <a href="{{ usuario.documento_identidade.url }}" class="btn btn-outline-secondary btn-sm w-100" target="_blank">
+                  📄 Identidade
+                </a>
+              {% else %}
+                <span class="text-muted">Sem documento</span>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              {% if usuario.comprovante_residencia %}
+                <a href="{{ usuario.comprovante_residencia.url }}" class="btn btn-outline-secondary btn-sm w-100" target="_blank">
+                  📄 Residência
+                </a>
+              {% else %}
+                <span class="text-muted">Sem comprovante</span>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              {% if usuario.diploma_ou_certificado %}
+                <a href="{{ usuario.diploma_ou_certificado.url }}" class="btn btn-outline-secondary btn-sm w-100" target="_blank">
+                  📄 Diploma
+                </a>
+              {% else %}
+                <span class="text-muted">Sem diploma</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% if usuario.can_publish and ementas_usuario %}
+    <div class="card shadow mb-4">
+      <div class="card-header bg-warning text-dark">
+        <h6 class="mb-0">Minhas Ementas</h6>
+      </div>
+      <div class="card-body">
+        <div class="list-group list-group-flush">
+          {% for ementa in ementas_usuario %}
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">{{ ementa.titulo }}</h6>
+                <small class="text-muted">{{ ementa.criado_em|date:"d/m/Y" }}</small>
+              </div>
+              <p class="mb-1">{{ ementa.ementa|truncatechars:100 }}</p>
+              <small class="text-muted">
+                <span class="badge bg-info me-2">{{ ementa.get_tipo_ato_normativo_display }}</span>
+                <span class="badge {% if ementa.situacao == 'em_vigor' %}bg-success{% elif ementa.situacao == 'revogada' %}bg-warning{% else %}bg-danger{% endif %}">
+                  {{ ementa.get_situacao_display }}
+                </span>
+              </small>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="mt-3">
+          <a href="{% url 'ementas:lista' %}" class="btn btn-outline-warning btn-sm">Ver Todas</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    {% if usuario.can_view_confidential and ementas_sigilosas %}
+    <div class="card shadow">
+      <div class="card-header bg-danger text-white">
+        <h6 class="mb-0">Ementas Sigilosas</h6>
+      </div>
+      <div class="card-body">
+        <div class="list-group list-group-flush">
+          {% for ementa in ementas_sigilosas %}
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">{{ ementa.titulo }}</h6>
+                <small class="text-muted">{{ ementa.criado_em|date:"d/m/Y" }}</small>
+              </div>
+              <p class="mb-1">{{ ementa.ementa|truncatechars:100 }}</p>
+              <small class="text-muted">
+                <span class="badge bg-danger me-2">🔒 Sigiloso</span>
+                <span class="badge bg-info me-2">{{ ementa.get_tipo_ato_normativo_display }}</span>
+              </small>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="text-center mt-4">
+  <a href="{% url 'usuarios:dashboard' %}" class="btn btn-primary me-2">Dashboard</a>
+  <a href="{% url 'ementas:lista' %}" class="btn btn-outline-secondary">Voltar para Ementas</a>
+</div>
+{% endblock %}

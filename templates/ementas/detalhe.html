@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 {% block title %}{{ ementa.titulo }}{% endblock %}
 {% block content %}
-  <h1 class="h3">{{ ementa.titulo }}</h1>
+  <h1 class="h3">
+    {% if ementa.sigiloso %}
+      <span class="text-warning">🔒 {{ ementa.titulo }}</span>
+    {% else %}
+      {{ ementa.titulo }}
+    {% endif %}
+  </h1>
   
   <div class="row mb-3">
     <div class="col-md-6">
@@ -15,39 +21,69 @@
           {{ ementa.get_situacao_display }}
         </span>
       </div>
+      {% if ementa.sigiloso %}
+        <div class="mt-2">
+          <span class="badge bg-warning text-dark fs-6">🔒 SIGILOSO</span>
+        </div>
+      {% endif %}
     </div>
   </div>
   
-  {% if ementa.ementa %}
+  {% if ementa.sigiloso %}
+    <div class="alert alert-warning">
+      <h5 class="alert-heading">⚠️ Ementa Sigilosa</h5>
+      <p class="mb-0">
+        Esta ementa é sigilosa e não possui conteúdo visível neste sistema. 
+        As informações completas estão disponíveis apenas para usuários autorizados 
+        através de outros sistemas de acesso.
+      </p>
+    </div>
+    
     <div class="card mb-3">
-      <div class="card-header">
-        <h5 class="mb-0">Ementa</h5>
+      <div class="card-header bg-light">
+        <h6 class="mb-0 text-muted">Informações Limitadas</h6>
       </div>
       <div class="card-body">
-        <p class="mb-0">{{ ementa.ementa }}</p>
+        <p class="text-muted mb-0">
+          <strong>Tipo:</strong> {{ ementa.get_tipo_ato_normativo_display }}<br>
+          <strong>Número:</strong> {{ ementa.numero|default:"N/A" }}<br>
+          <strong>Status:</strong> {{ ementa.get_situacao_display }}<br>
+          <strong>Data de Publicação:</strong> {{ ementa.data_publicacao|date:"d/m/Y"|default:"N/A" }}
+        </p>
       </div>
-    </div>
-  {% endif %}
-  
-  {% if ementa.resumo and ementa.resumo != ementa.ementa %}
-    <div class="card mb-3">
-      <div class="card-header">
-        <h5 class="mb-0">Resumo Adicional</h5>
-      </div>
-      <div class="card-body">
-        <p class="mb-0">{{ ementa.resumo }}</p>
-      </div>
-    </div>
-  {% endif %}
-
-  {% if ementa.arquivo %}
-    <div class="mt-3">
-      <a class="btn btn-outline-primary" href="{{ ementa.arquivo.url }}" rel="noopener">
-        <i class="bi bi-file-pdf"></i> Baixar PDF
-      </a>
     </div>
   {% else %}
-    <div class="text-muted mt-3">Nenhum PDF anexado.</div>
+    {% if ementa.ementa %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0">Ementa</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">{{ ementa.ementa }}</p>
+        </div>
+      </div>
+    {% endif %}
+    
+    {% if ementa.resumo and ementa.resumo != ementa.ementa %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0">Resumo Adicional</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">{{ ementa.resumo }}</p>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if ementa.arquivo %}
+      <div class="mt-3">
+        <a class="btn btn-outline-primary" href="{{ ementa.arquivo.url }}" rel="noopener">
+          <i class="bi bi-file-pdf"></i> Baixar PDF
+        </a>
+      </div>
+    {% else %}
+      <div class="text-muted mt-3">Nenhum PDF anexado.</div>
+    {% endif %}
   {% endif %}
 
   <div class="mt-4">

@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - CREA-TO{% endblock %}
+{% block content %}
+<div class="row mb-4">
+  <div class="col-12">
+    <h2 class="mb-3">Dashboard</h2>
+    <p class="text-muted">Bem-vindo, {{ usuario.get_full_name }}!</p>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card bg-primary text-white">
+      <div class="card-body text-center">
+        <h3 class="card-title">{{ total_ementas }}</h3>
+        <p class="card-text">Total de Ementas</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-success text-white">
+      <div class="card-body text-center">
+        <h3 class="card-title">{{ usuario.ementas_criadas.count }}</h3>
+        <p class="card-text">Minhas Ementas</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-info text-white">
+      <div class="card-body text-center">
+        <h3 class="card-title">{{ usuario.get_tipo_usuario_display }}</h3>
+        <p class="card-text">Tipo de Usuário</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-warning text-dark">
+      <div class="card-body text-center">
+        <h3 class="card-title">{{ usuario.get_permissao_display }}</h3>
+        <p class="card-text">Nível de Permissão</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Ementas Recentes</h5>
+      </div>
+      <div class="card-body">
+        {% if ementas_recentes %}
+          <div class="list-group list-group-flush">
+            {% for ementa in ementas_recentes %}
+              <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">
+                    <a href="{% url 'ementas:detalhe' ementa.pk %}" class="text-decoration-none">
+                      {{ ementa.titulo }}
+                    </a>
+                  </h6>
+                  <small class="text-muted">{{ ementa.criado_em|date:"d/m/Y" }}</small>
+                </div>
+                <p class="mb-1">{{ ementa.ementa|truncatechars:150 }}</p>
+                <div class="d-flex gap-2">
+                  {% if ementa.numero %}
+                    <span class="badge bg-secondary">{{ ementa.numero }}</span>
+                  {% endif %}
+                  <span class="badge bg-info">{{ ementa.get_tipo_ato_normativo_display }}</span>
+                  <span class="badge {% if ementa.situacao == 'em_vigor' %}bg-success{% elif ementa.situacao == 'revogada' %}bg-warning{% else %}bg-danger{% endif %}">
+                    {{ ementa.get_situacao_display }}
+                  </span>
+                  {% if ementa.sigiloso %}
+                    <span class="badge bg-danger">🔒 Sigiloso</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="mt-3">
+            <a href="{% url 'ementas:lista' %}" class="btn btn-outline-primary">Ver Todas as Ementas</a>
+          </div>
+        {% else %}
+          <p class="text-muted text-center">Nenhuma ementa encontrada.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    {% if usuario.can_publish %}
+    <div class="card shadow mb-4">
+      <div class="card-header bg-success text-white">
+        <h6 class="mb-0">Minhas Ementas</h6>
+      </div>
+      <div class="card-body">
+        {% if minhas_ementas %}
+          <div class="list-group list-group-flush">
+            {% for ementa in minhas_ementas %}
+              <div class="list-group-item">
+                <h6 class="mb-1">{{ ementa.titulo }}</h6>
+                <small class="text-muted">{{ ementa.criado_em|date:"d/m/Y" }}</small>
+                <div class="mt-2">
+                  <span class="badge bg-info me-1">{{ ementa.get_tipo_ato_normativo_display }}</span>
+                  <span class="badge {% if ementa.situacao == 'em_vigor' %}bg-success{% elif ementa.situacao == 'revogada' %}bg-warning{% else %}bg-danger{% endif %}">
+                    {{ ementa.get_situacao_display }}
+                  </span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted text-center">Você ainda não criou nenhuma ementa.</p>
+        {% endif %}
+        
+        <div class="mt-3">
+          <a href="#" class="btn btn-success btn-sm w-100">Nova Ementa</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <div class="card shadow">
+      <div class="card-header bg-info text-white">
+        <h6 class="mb-0">Ações Rápidas</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-primary">Meu Perfil</a>
+          <a href="{% url 'usuarios:editar_perfil' %}" class="btn btn-outline-secondary">Editar Perfil</a>
+          {% if usuario.can_publish %}
+            <a href="#" class="btn btn-outline-success">Criar Ementa</a>
+          {% endif %}
+          <a href="{% url 'ementas:lista' %}" class="btn btn-outline-info">Pesquisar Ementas</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card shadow">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">Status da Sua Conta</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Verificações:</h6>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                {% if usuario.email_verificado %}
+                  <span class="text-success">✓ E-mail verificado</span>
+                {% else %}
+                  <span class="text-warning">✗ E-mail não verificado</span>
+                {% endif %}
+              </li>
+              <li class="mb-2">
+                {% if usuario.conta_aprovada %}
+                  <span class="text-success">✓ Conta aprovada</span>
+                {% else %}
+                  <span class="text-warning">✗ Conta pendente de aprovação</span>
+                {% endif %}
+              </li>
+            </ul>
+          </div>
+          
+          <div class="col-md-6">
+            <h6>Permissões:</h6>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                {% if usuario.pode_publicar %}
+                  <span class="text-success">✓ Pode publicar atas</span>
+                {% else %}
+                  <span class="text-muted">✗ Não pode publicar atas</span>
+                {% endif %}
+              </li>
+              <li class="mb-2">
+                {% if usuario.pode_visualizar_sigiloso %}
+                  <span class="text-success">✓ Pode visualizar sigiloso</span>
+                {% else %}
+                  <span class="text-muted">✗ Não pode visualizar sigiloso</span>
+                {% endif %}
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        {% if not usuario.is_approved %}
+          <div class="alert alert-warning mt-3">
+            <strong>Atenção:</strong> Sua conta ainda não foi aprovada. 
+            Entre em contato com o administrador para mais informações.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -2,6 +2,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.utils.dateparse import parse_date
+from django.contrib.auth.decorators import login_required
 from .models import Ementa
 
 def ementa_list(request):
@@ -19,7 +20,12 @@ def ementa_list(request):
     except ValueError:
         itens_por_pagina = 10
     
+    # Base queryset - apenas ementas publicadas
     qs = Ementa.objects.filter(publicado=True)
+    
+    # Filtro de sigiloso baseado no usuário
+    if not request.user.is_authenticated or not hasattr(request.user, 'perfil') or not request.user.perfil.can_view_confidential:
+        qs = qs.filter(sigiloso=False)
     
     if q:
         qs = qs.filter(
@@ -67,11 +73,22 @@ def ementa_list(request):
         "tipos_ato": Ementa.TIPO_ATO_CHOICES,
         "situacoes": Ementa.SITUACAO_CHOICES,
         "opcoes_paginacao": [10, 50, 100],
+        "user_can_view_confidential": request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.can_view_confidential,
     }
     return render(request, "ementas/lista.html", context)
 
 def ementa_detail(request, pk):
     ementa = get_object_or_404(Ementa, pk=pk)
+    
+    # Verifica se a ementa está publicada
     if not ementa.publicado and not (request.user.is_authenticated and request.user.is_staff):
         return render(request, "404.html", status=404)
+    
+    # Verifica se o usuário pode ver ementas sigilosas
+    if ementa.sigiloso and not (request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.can_view_confidential):
+        return render(request, "ementas/detalhe.html", {
+            "ementa": ementa,
+            "acesso_negado": True
+        })
+    
     return render(request, "ementas/detalhe.html", {"ementa": ementa})
