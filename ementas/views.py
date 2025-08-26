@@ -1,12 +1,15 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
+from django.utils.dateparse import parse_date
 from .models import Ementa
 
 def ementa_list(request):
     q = request.GET.get("q", "").strip()
     tipo_ato = request.GET.get("tipo_ato", "")
     situacao = request.GET.get("situacao", "")
+    data_inicio = request.GET.get("data_inicio", "")
+    data_fim = request.GET.get("data_fim", "")
     itens_por_pagina = request.GET.get("itens_por_pagina", "10")
     
     try:
@@ -32,6 +35,23 @@ def ementa_list(request):
     if situacao:
         qs = qs.filter(situacao=situacao)
     
+    # Filtros de data
+    if data_inicio:
+        try:
+            data_inicio_parsed = parse_date(data_inicio)
+            if data_inicio_parsed:
+                qs = qs.filter(data_publicacao__gte=data_inicio_parsed)
+        except (ValueError, TypeError):
+            pass
+    
+    if data_fim:
+        try:
+            data_fim_parsed = parse_date(data_fim)
+            if data_fim_parsed:
+                qs = qs.filter(data_publicacao__lte=data_fim_parsed)
+        except (ValueError, TypeError):
+            pass
+    
     paginator = Paginator(qs, itens_por_pagina)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -41,6 +61,8 @@ def ementa_list(request):
         "q": q,
         "tipo_ato": tipo_ato,
         "situacao": situacao,
+        "data_inicio": data_inicio,
+        "data_fim": data_fim,
         "itens_por_pagina": itens_por_pagina,
         "tipos_ato": Ementa.TIPO_ATO_CHOICES,
         "situacoes": Ementa.SITUACAO_CHOICES,

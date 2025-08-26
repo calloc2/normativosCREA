@@ -14,7 +14,7 @@
     </div>
     
     <div class="row g-3">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <label for="tipo_ato" class="form-label">Tipo de Ato Normativo</label>
         <select name="tipo_ato" id="tipo_ato" class="form-select">
           <option value="">Todos os tipos</option>
@@ -24,7 +24,7 @@
         </select>
       </div>
       
-      <div class="col-md-4">
+      <div class="col-md-3">
         <label for="situacao" class="form-label">Situação</label>
         <select name="situacao" id="situacao" class="form-select">
           <option value="">Todas as situações</option>
@@ -34,6 +34,18 @@
         </select>
       </div>
       
+      <div class="col-md-3">
+        <label for="data_inicio" class="form-label">Data de Início</label>
+        <input type="date" name="data_inicio" id="data_inicio" class="form-control" value="{{ data_inicio }}">
+      </div>
+      
+      <div class="col-md-3">
+        <label for="data_fim" class="form-label">Data de Fim</label>
+        <input type="date" name="data_fim" id="data_fim" class="form-control" value="{{ data_fim }}">
+      </div>
+    </div>
+    
+    <div class="row g-3 mt-2">
       <div class="col-md-4">
         <label for="itens_por_pagina" class="form-label">Itens por página</label>
         <select name="itens_por_pagina" id="itens_por_pagina" class="form-select">
@@ -56,7 +68,7 @@
     <div class="mb-3">
       <small class="text-muted">
         Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} resultado(s)
-        {% if q or tipo_ato or situacao %}
+        {% if q or tipo_ato or situacao or data_inicio or data_fim %}
           <span class="ms-2">(filtros aplicados)</span>
         {% endif %}
       </small>
@@ -89,7 +101,7 @@
         <ul class="pagination justify-content-center">
           {% if page_obj.has_previous %}
             <li class="page-item">
-              <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if tipo_ato %}tipo_ato={{ tipo_ato }}&{% endif %}{% if situacao %}situacao={{ situacao }}&{% endif %}{% if itens_por_pagina != 10 %}itens_por_pagina={{ itens_por_pagina }}&{% endif %}page={{ page_obj.previous_page_number }}">«</a>
+              <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if tipo_ato %}tipo_ato={{ tipo_ato }}&{% endif %}{% if situacao %}situacao={{ situacao }}&{% endif %}{% if data_inicio %}data_inicio={{ data_inicio }}&{% endif %}{% if data_fim %}data_fim={{ data_fim }}&{% endif %}{% if itens_por_pagina != 10 %}itens_por_pagina={{ itens_por_pagina }}&{% endif %}page={{ page_obj.previous_page_number }}">«</a>
             </li>
           {% else %}
             <li class="page-item disabled"><span class="page-link">«</span></li>
@@ -101,7 +113,7 @@
 
           {% if page_obj.has_next %}
             <li class="page-item">
-              <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if tipo_ato %}tipo_ato={{ tipo_ato }}&{% endif %}{% if situacao %}situacao={{ situacao }}&{% endif %}{% if itens_por_pagina != 10 %}itens_por_pagina={{ itens_por_pagina }}&{% endif %}page={{ page_obj.next_page_number }}">»</a>
+              <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if tipo_ato %}tipo_ato={{ tipo_ato }}&{% endif %}{% if situacao %}situacao={{ situacao }}&{% endif %}{% if data_inicio %}data_inicio={{ data_inicio }}&{% endif %}{% if data_fim %}data_fim={{ data_fim }}&{% endif %}{% if itens_por_pagina != 10 %}itens_por_pagina={{ itens_por_pagina }}&{% endif %}page={{ page_obj.next_page_number }}">»</a>
             </li>
           {% else %}
             <li class="page-item disabled"><span class="page-link">»</span></li>
@@ -111,7 +123,7 @@
     {% endif %}
   {% else %}
     <div class="alert alert-info">
-      {% if q or tipo_ato or situacao %}
+      {% if q or tipo_ato or situacao or data_inicio or data_fim %}
         Nenhuma ementa encontrada com os filtros aplicados. 
         <a href="{% url 'ementas:lista' %}" class="alert-link">Tente limpar os filtros</a>.
       {% else %}

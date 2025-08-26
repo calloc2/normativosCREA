@@ -30,7 +30,7 @@ class Ementa(models.Model):
     ementa = models.TextField("Ementa (Resumo)", blank=True, help_text="Resumo do ato normativo para facilitar a pesquisa")
     resumo = models.TextField("Resumo", blank=True)
     data_publicacao = models.DateField("Data de Publicação", blank=True, null=True)
-    arquivo = models.FileField("PDF", upload_to="ementas/", null=True, blank=True)
+    arquivo = models.FileField("PDF", upload_to="ementas/pdf/", null=True, blank=True)
     publicado = models.BooleanField("Publicado", default=True)
     criado_em = models.DateTimeField("Criado em", auto_now_add=True)
     atualizado_em = models.DateTimeField("Atualizado em", auto_now=True)
