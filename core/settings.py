@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_recaptcha',
     'ementas',
     'usuarios',
+    'protocolos',
 ]
 
 MIDDLEWARE = [
